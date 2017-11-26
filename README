@@ -1,0 +1,24 @@
+Name:
+   Zach Wyman
+Course:
+   CPSC 4160
+Clemson Email Address:
+   zwyman@g.clemson.edu
+Project no:
+  4
+Project due date:
+  Wednesday November 15th (turned in late)
+Project description:
+  Added player mechanics, collisions, AI, and a HUD. I want to use the same framework and physics,
+  but change the sprites in my game to create a racing type game. I want to build the sprites on my
+  own, but haven't had the time yet so I am keeping the same sprites from before. My idea is to have
+  a fixed length world, and you want to get to the end as fast as possible. In the way are other cars
+  that you have to tailgate behind and cops that can pull you over (add time). Score would be kept in
+  the form of time and the game would conclude when the car gets to the end of the level.
+The easiest part of this project:
+  The easiest part of this project was implementing the player class because we could mostly use your code.
+
+Problems that I had in completing this project:
+  The hardest part of this project was definitely creating the HUD class, as we had to create our own class
+  from scratch. That being said, it was also by far the most rewarding when we finished the HUD class,
+  because you know that you created the HUD class completely without using anyone else's code. 
