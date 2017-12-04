@@ -1,10 +1,12 @@
 #include "player.h"
 #include "smartSprite.h"
+#include "explodingMultiSprite.h"
 
 Player::Player( const std::string& name) :
   MultiSprite(name),
   observers(),
   collision(false),
+  explosion(nullptr),
   initialVelocity(getVelocity())
 { }
 
@@ -12,12 +14,14 @@ Player::Player(const Player& s) :
   MultiSprite(s),
   observers(s.observers),
   collision(s.collision),
+  explosion(s.explosion),
   initialVelocity(s.getVelocity())
   { }
 
 Player& Player::operator=(const Player& s) {
   MultiSprite::operator=(s);
   collision = s.collision;
+  explosion = s.explosion;
   initialVelocity = s.initialVelocity;
   return *this;
 }
@@ -48,18 +52,34 @@ void Player::left()  {
   }
 }
 void Player::up()    {
-  if ( getY() > 0) {
-    setVelocityY( -initialVelocity[1] );
-  }
+  setPosition(Vector2f(getX(), 190));
 }
 void Player::down()  {
-  if ( getY() < worldHeight-getScaledHeight()) {
-    setVelocityY( initialVelocity[1] );
-  }
+  setPosition(Vector2f(getX(), 280));
+
+}
+
+void Player::explode() {
+  if ( !explosion ) explosion = new ExplodingMultiSprite(*this);
+}
+
+void Player::draw() const  {
+  if ( explosion ) explosion->draw();
+  else images[currentFrame]->draw(getX(), getY(), getScale());
+
 }
 
 void Player::update(Uint32 ticks) {
-  if ( !collision ) advanceFrame(ticks);
+  if ( explosion ) {
+    explosion->update(ticks);
+    if ( explosion->chunkCount() == 0 ) {
+      delete explosion;
+      explosion = NULL;
+    }
+    return;
+  }
+
+  advanceFrame(ticks);
 
   Vector2f incr = getVelocity() * static_cast<float>(ticks) * 0.001;
   setPosition(getPosition() + incr);

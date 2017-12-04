@@ -16,6 +16,8 @@ private:
   SDL_Rect rect;
   const IOmod& io;
   HUD();
+  HUD(const HUD&);
+  HUD& operator=(const HUD&);
 };
 
 

@@ -14,8 +14,6 @@
 #include "collisionStrategy.h"
 
 Engine::~Engine() {
-  // delete star;
-  // delete spinningStar;
   for (unsigned int i = 0; i < sprites.size(); i++) {
     delete sprites[i];
   }
@@ -31,30 +29,28 @@ Engine::Engine() :
   rc( RenderContext::getInstance() ),
   io( IOmod::getInstance() ),
   hud( HUD::getInstance() ),
-  hudFlag( true ),
+  hudFlag( false ),
   clock( Clock::getInstance() ),
   renderer( rc->getRenderer() ),
   nightsky("nightsky", Gamedata::getInstance().getXmlInt("nightsky/factor") ),
   stands("stands", Gamedata::getInstance().getXmlInt("stands/factor") ),
   field("field", Gamedata::getInstance().getXmlInt("field/factor") ),
   viewport( Viewport::getInstance() ),
-  player(new Player("Football")),
+  player(new Player("Truck")),
   sprites(),
   strategies(),
   currentStrategy(0),
   collision( false),
   makeVideo( false )
 {
-  Vector2f pos = player->getPosition();
-  int w = player->getScaledWidth();
-  int h = player->getScaledHeight();
 
-  for (int i = 0; i < 10; i++) {
-    sprites.push_back(new SmartSprite("Helmet", pos, w, h));
-    player->attach(static_cast<SmartSprite*>(sprites[i]));
+  for (int i = 0; i < 50; i++) {
+    sprites.push_back(new Sprite("Bomb"));
   }
 
   strategies.push_back(new PerPixelCollisionStrategy );
+
+
 
   Viewport::getInstance().setObjectToTrack(player);
   std::cout << "Loading complete" << std::endl;
@@ -69,7 +65,13 @@ void Engine::draw() const {
     sprites[i]->draw();
   }
 
-  if (hudFlag) {
+  if (clock.getSeconds() < 3) {
+    hud.draw();
+    std::stringstream strm;
+    strm << "Zachary Wyman's game\n fps: " << clock.getFps();
+    io.writeText(strm.str(), {255, 0, 255, 255}, 30, 440);
+  }
+  else if (hudFlag) {
     hud.draw();
     std::stringstream strm;
     strm << "Zachary Wyman's game\n fps: " << clock.getFps();
@@ -87,13 +89,14 @@ void Engine::draw() const {
 
 void Engine::checkForCollisions() {
   collision = false;
-  for ( const Drawable* d : sprites ) {
+  for ( Drawable* d : sprites ) {
     if ( strategies[currentStrategy]->execute(*player, *d) ) {
       collision = true;
+      static_cast<Sprite*>(d)->explode();
     }
   }
   if ( collision ) {
-    player->collided();
+    player->explode();
   }
   else {
     player->missed();
@@ -153,6 +156,13 @@ void Engine::play() {
     }
 
     // In this section of the event loop we allow key bounce:
+
+    // for (unsigned int i = 0; i < sprites.size(); i++) {
+    //   if (static_cast<Sprite*>(sprites[i])->getExplosions()) {
+    //     sprites.erase(sprites.begin() + i);
+    //     delete sprites[i];
+    //   }
+    // }
 
     ticks = clock.getElapsedTicks();
     if ( ticks > 0 ) {
