@@ -7,7 +7,13 @@ Player::Player( const std::string& name) :
   observers(),
   collision(false),
   explosion(nullptr),
-  initialVelocity(getVelocity())
+  initialVelocity(getVelocity()),
+  bulletName( Gamedata::getInstance().getXmlStr(name+"/bullet") ),
+  activeBullets(),
+  freeBullets(),
+  minSpeed( Gamedata::getInstance().getXmlInt(bulletName+"/speedX") ),
+  bulletInterval(Gamedata::getInstance().getXmlInt(bulletName+"/interval")),
+  timeSinceLastFrame(0)
 { }
 
 Player::Player(const Player& s) :
@@ -15,7 +21,13 @@ Player::Player(const Player& s) :
   observers(s.observers),
   collision(s.collision),
   explosion(s.explosion),
-  initialVelocity(s.getVelocity())
+  initialVelocity(s.getVelocity()),
+  bulletName(s.bulletName),
+  activeBullets(s.activeBullets),
+  freeBullets(s.freeBullets),
+  minSpeed(s.minSpeed),
+  bulletInterval(s.bulletInterval),
+  timeSinceLastFrame(s.timeSinceLastFrame)
   { }
 
 Player& Player::operator=(const Player& s) {
@@ -67,9 +79,47 @@ void Player::draw() const  {
   if ( explosion ) explosion->draw();
   else images[currentFrame]->draw(getX(), getY(), getScale());
 
+  for ( const Bullet& bullet : activeBullets ) {
+    bullet.draw();
+  }
+}
+
+void Player::shoot() {
+  if ( timeSinceLastFrame < bulletInterval ) return;
+  float deltaX = getScaledWidth();
+  float deltaY = getScaledHeight()/2;
+  // I need to add some minSpeed to velocity:
+  Bullet bullet(bulletName);
+  bullet.setPosition( getPosition() +Vector2f(deltaX, deltaY) );
+  bullet.setVelocity( getVelocity() + Vector2f(minSpeed, 0) );
+  if (!freeBullets.empty()) {
+    bullet = freeBullets.back();
+    bullet.reset();
+    bullet.setPosition( getPosition() +Vector2f(deltaX, deltaY) );
+    bullet.setVelocity( getVelocity() + Vector2f(minSpeed, 0) );
+    activeBullets.push_back(bullet);
+    freeBullets.pop_back();
+  } else {
+    activeBullets.push_back(bullet);
+  }
+
+  timeSinceLastFrame = 0;
 }
 
 void Player::update(Uint32 ticks) {
+  timeSinceLastFrame += ticks;
+  auto iter = activeBullets.begin();
+  for ( Bullet& bullet : activeBullets ) {
+    if (bullet.goneTooFar()) {
+      //activeBullets.erase(bullet);
+      freeBullets.push_back(bullet);
+      iter = activeBullets.erase(iter);
+    } else {
+      bullet.update(ticks);
+      iter++;
+    }
+  }
+
   if ( explosion ) {
     explosion->update(ticks);
     if ( explosion->chunkCount() == 0 ) {

@@ -4,6 +4,7 @@
 #include <list>
 #include "multisprite.h"
 #include "smartSprite.h"
+#include "bullet.h"
 
 class ExplodingMultiSprite;
 
@@ -21,7 +22,11 @@ public:
 
   void attach( SmartSprite* o ) { observers.push_back(o); }
   void detach( SmartSprite* o );
-  
+
+  int getFreeBullets() { return freeBullets.size(); }
+  int getActiveBullets() { return activeBullets.size(); }
+
+  void shoot();
 
   void right();
   void left();
@@ -35,5 +40,12 @@ private:
   bool collision;
   ExplodingMultiSprite* explosion;
   Vector2f initialVelocity;
+
+  std::string bulletName;
+  std::list<Bullet> activeBullets;
+  std::list<Bullet> freeBullets;
+  float minSpeed;
+  float bulletInterval;
+  float timeSinceLastFrame;
 };
 #endif

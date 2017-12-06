@@ -138,6 +138,9 @@ void Engine::play() {
           if ( clock.isPaused() ) clock.unpause();
           else clock.pause();
         }
+        if ( keystate[SDL_SCANCODE_SPACE] ) {
+          player->shoot();
+        }
         if ( keystate[SDL_SCANCODE_M] ) {
           currentStrategy = (1 + currentStrategy) % strategies.size();
         }

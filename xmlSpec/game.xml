@@ -112,14 +112,27 @@
   <imageWidth>256</imageWidth>
   <imageHeight>256</imageHeight>
   <frameInterval>50</frameInterval>
-  <speedX>500</speedX>
+  <speedX>300</speedX>
   <speedY>0</speedY>
   <transparency>false</transparency>
   <chunk>
     <size>9</size>
     <distance>200</distance>
   </chunk>
+  <bullet>bullet</bullet>
 </Truck>
+
+<bullet>
+  <file>assets/bullet.png</file>
+  <interval>300</interval>
+  <distance>320</distance>
+  <startLoc x="100" y="100"/>
+  <minSpeedX>250</minSpeedX>
+  <speedX>350</speedX>
+  <speedY>0</speedY>
+  <strategy>rectangular</strategy>
+  <transparency>true</transparency>
+</bullet>
 
 <HUD>
   <x>20</x>
